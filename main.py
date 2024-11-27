@@ -1,9 +1,25 @@
-from fastapi import FastAPI
-from src.config.uvicorn_config import *
 import uvicorn
 
+from fastapi import FastAPI, Query
+from pydantic import BaseModel
+from typing import Annotated
+
+from src.config.uvicorn_config import *
+
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
 
 app = FastAPI()
+
+@app.get("/items")
+async def read_items(q: Annotated[str | None, Query(max_length=60)] = None):
+    result = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        result.update({"q": q})
+    return result
 
 @app.get("/items/{item_id}")
 async def root(item_id: int):
@@ -18,6 +34,10 @@ async def root(item_id: int):
 async def getFromCount(skip: int, limit: int):
     return f"skip = {skip} limit 111= {limit}"
 
+@app.post("/create_item")
+async def create_item(item: Item):
+    return item
+
 @app.post("/")
 async def post():
     return None
@@ -31,4 +51,4 @@ async def delete():
     return None
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=reload)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=reload)

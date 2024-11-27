@@ -1,3 +1,6 @@
 import os
+from dotenv import load_dotenv
 
-reload = os.getenv("UVICORN_RELOAD", "false") == "true"
+load_dotenv()
+
+reload = os.getenv("UVICORN_RELOAD", "false").lower() == "true"
